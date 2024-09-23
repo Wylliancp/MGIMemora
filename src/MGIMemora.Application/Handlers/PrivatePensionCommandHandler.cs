@@ -1,3 +1,4 @@
+using FluentValidation;
 using MGIMemora.Application.Commands;
 using MGIMemora.Application.Commands.PrivatePension;
 using MGIMemora.Domain.Commands;
@@ -8,62 +9,109 @@ using MGIMemora.Domain.Repositories;
 namespace MGIMemora.Application.Handlers
 {
 
-    public class PrivatePensionCommandHandler : ICommandHandler<CreatePrivatePensionCommand>, 
-                                                ICommandHandler<UpdateModalityPrivatePensionCommand>, 
-                                                ICommandHandler<UpdatePrivatePensionCommand>, 
+    public class PrivatePensionCommandHandler : ICommandHandler<CreatePrivatePensionCommand>,
+                                                ICommandHandler<UpdateModalityPrivatePensionCommand>,
+                                                ICommandHandler<UpdatePrivatePensionCommand>,
                                                 ICommandHandler<DeletePrivatePensionCommand>
     {
 
         private readonly IPrivatePensionRepository _privatePensionRepository;
-        public PrivatePensionCommandHandler(IPrivatePensionRepository privatePensionRepository)
+        private IValidator<CreatePrivatePensionCommand> _validatorCreate;
+        private IValidator<UpdatePrivatePensionCommand> _validatorUpdate;
+        private IValidator<UpdateModalityPrivatePensionCommand> _validatorUpdateModality;
+        private IValidator<DeletePrivatePensionCommand> _validatorDelete;
+
+        public PrivatePensionCommandHandler(IPrivatePensionRepository privatePensionRepository,
+            IValidator<CreatePrivatePensionCommand> validatorCreate,
+            IValidator<UpdatePrivatePensionCommand> validatorUpdate,
+            IValidator<UpdateModalityPrivatePensionCommand> validatorUpdateModality,
+            IValidator<DeletePrivatePensionCommand> validatorDelete
+            )
         {
             _privatePensionRepository = privatePensionRepository;
+            _validatorCreate = validatorCreate;
+            _validatorUpdate = validatorUpdate;
+            _validatorUpdateModality = validatorUpdateModality;
+            _validatorDelete = validatorDelete;
         }
 
         public async Task<ICommandResult> Handle(CreatePrivatePensionCommand command)
         {
-            if (command is null) return new GenericResultCommand(false, "Dados Invalidos!");
 
-            var privatePension = new PrivatePension(command.Name, command.BenefitName, command.Modality, command.ValueMillions, command.SponsorshipCompany);
+            var result = await _validatorCreate.ValidateAsync(command);
 
-            await _privatePensionRepository.CreateAsync(privatePension);
+            if (result.IsValid)
+            {
 
-            return new GenericResultCommand(true, "Criado com Sucesso!");
+                if (command is null) return new GenericResultCommand(false, "Dados Invalidos!");
+
+                var privatePension = new PrivatePension(command.Name, command.BenefitName, command.Modality, command.ValueMillions, command.SponsorshipCompany);
+
+                await _privatePensionRepository.CreateAsync(privatePension);
+
+                return new GenericResultCommand(true, "Criado com Sucesso!");
+
+            }
+
+            return new GenericResultCommand(false, "Dados Invalidos!", result.Errors);
         }
 
         public async Task<ICommandResult> Handle(UpdateModalityPrivatePensionCommand command)
         {
-            if (command is null) return new GenericResultCommand(false, "Dados Invalidos!");
 
-            var privatePension = await _privatePensionRepository.GetByIdAsync(command.Id);
+            var result = await _validatorUpdateModality.ValidateAsync(command);
 
-            privatePension.UpdateModality(command.Modality);
+            if (result.IsValid)
+            {
 
-            await _privatePensionRepository.UpdateAsync(privatePension);
+                var privatePension = await _privatePensionRepository.GetByIdAsync(command.Id);
 
-            return new GenericResultCommand(true, "Modalidade atualizado com Sucesso!");
+                privatePension.UpdateModality(command.Modality);
+
+                await _privatePensionRepository.UpdateAsync(privatePension);
+
+                return new GenericResultCommand(true, "Modalidade atualizado com Sucesso!");
+
+            }
+
+            return new GenericResultCommand(false, "Dados Invalidos!", result.Errors);
+
         }
 
         public async Task<ICommandResult> Handle(UpdatePrivatePensionCommand command)
         {
-            if (command is null) return new GenericResultCommand(false, "Dados Invalidos!");
 
-            var privatePension = await _privatePensionRepository.GetByIdAsync(command.Id);
+            var result = await _validatorUpdate.ValidateAsync(command);
 
-            privatePension.Update(command.Name, command.BenefitName, command.ValueMillions, command.SponsorshipCompany);
+            if (result.IsValid)
+            {
 
-            await _privatePensionRepository.UpdateAsync(privatePension);
+                var privatePension = await _privatePensionRepository.GetByIdAsync(command.Id);
 
-            return new GenericResultCommand(true, "Atualizado com Sucesso!");
+                privatePension.Update(command.Name, command.BenefitName, command.ValueMillions, command.SponsorshipCompany);
+
+                await _privatePensionRepository.UpdateAsync(privatePension);
+
+                return new GenericResultCommand(true, "Atualizado com Sucesso!");
+            }
+
+            return new GenericResultCommand(false, "Dados Invalidos!", result.Errors);
         }
 
         public async Task<ICommandResult> Handle(DeletePrivatePensionCommand command)
         {
-            if (command is null) return new GenericResultCommand(false, "Dados Invalidos!");
 
-            await _privatePensionRepository.DeleteAsync(command.Id);
+            var result = await _validatorDelete.ValidateAsync(command);
 
-            return new GenericResultCommand(true, "Deletado com Sucesso!");
+            if (result.IsValid)
+            {
+
+                await _privatePensionRepository.DeleteAsync(command.Id);
+
+                return new GenericResultCommand(true, "Deletado com Sucesso!");
+            }
+            
+            return new GenericResultCommand(false, "Dados Invalidos!", result.Errors);
         }
     }
 }

@@ -1,8 +1,11 @@
+using FluentValidation;
+using MGIMemora.Application.Commands.PrivatePension;
 using MGIMemora.Application.Handlers;
 using MGIMemora.Domain.Repositories;
 using MGIMemora.Infrastructure.Context;
 using MGIMemora.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
+using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,7 +23,14 @@ builder.Services.AddTransient<PrivatePensionCommandHandler>();
 builder.Services.AddTransient<PrivatePensionQueryHandler>();
 
 builder.Services.AddTransient<IPrivatePensionRepository,PrivatePensionRepository>();
-//
+
+//Validators
+builder.Services.AddScoped<IValidator<CreatePrivatePensionCommand>, CreatePrivatePensionValidator>();
+builder.Services.AddScoped<IValidator<UpdatePrivatePensionCommand>, UpdatePrivatePensionValidator>();
+builder.Services.AddScoped<IValidator<UpdateModalityPrivatePensionCommand>, UpdateModalityPrivatePensionValidator>();
+builder.Services.AddScoped<IValidator<DeletePrivatePensionCommand>, DeletePrivatePensionValidator>();
+
+
 
 var app = builder.Build();
 
