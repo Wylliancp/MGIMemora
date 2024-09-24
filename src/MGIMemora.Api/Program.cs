@@ -1,6 +1,8 @@
 using FluentValidation;
 using MGIMemora.Application.Commands.PrivatePension;
-using MGIMemora.Application.Handlers;
+using MGIMemora.Application.Commands.User;
+using MGIMemora.Application.Handlers.PrivatePension;
+using MGIMemora.Application.Handlers.User;
 using MGIMemora.Domain.Repositories;
 using MGIMemora.Infrastructure.Context;
 using MGIMemora.Infrastructure.Repositories;
@@ -21,14 +23,23 @@ builder.Services.AddDbContext<MGIContext>(opt => opt.UseInMemoryDatabase("databa
 //IOC
 builder.Services.AddTransient<PrivatePensionCommandHandler>();
 builder.Services.AddTransient<PrivatePensionQueryHandler>();
+builder.Services.AddTransient<UserCommandHandler>();
+builder.Services.AddTransient<UserQueryHandler>();
 
 builder.Services.AddTransient<IPrivatePensionRepository,PrivatePensionRepository>();
+builder.Services.AddTransient<IUserRepository, UserRepository>();
 
-//Validators
+//Validators PrivatePension
 builder.Services.AddScoped<IValidator<CreatePrivatePensionCommand>, CreatePrivatePensionValidator>();
 builder.Services.AddScoped<IValidator<UpdatePrivatePensionCommand>, UpdatePrivatePensionValidator>();
 builder.Services.AddScoped<IValidator<UpdateModalityPrivatePensionCommand>, UpdateModalityPrivatePensionValidator>();
 builder.Services.AddScoped<IValidator<DeletePrivatePensionCommand>, DeletePrivatePensionValidator>();
+//Validators User
+builder.Services.AddScoped<IValidator<CreateUserCommand>, CreateUserValidator>();
+builder.Services.AddScoped<IValidator<UpdateEmailUserCommand>, UpdateEmailUserValidator>();
+builder.Services.AddScoped<IValidator<UpdateRolesUserCommand>, UpdateRolesUserValidator>();
+builder.Services.AddScoped<IValidator<DeleteUserCommand>, DeleteUserValidator>();
+
 
 
 

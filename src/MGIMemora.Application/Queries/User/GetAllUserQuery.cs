@@ -1,9 +1,9 @@
 
 using MGIMemora.Domain.Queries;
 
-namespace MGIMemora.Application.Queries.PrivatePension;
+namespace MGIMemora.Application.Queries.User;
 
-public class GetAllQuery : IQuery
+public class GetAllUserQuery : IQuery
 {
     //TODO - property pagination
     //TODO - user 

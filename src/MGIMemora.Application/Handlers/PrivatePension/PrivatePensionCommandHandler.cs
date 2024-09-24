@@ -2,11 +2,10 @@ using FluentValidation;
 using MGIMemora.Application.Commands;
 using MGIMemora.Application.Commands.PrivatePension;
 using MGIMemora.Domain.Commands;
-using MGIMemora.Domain.Entities;
 using MGIMemora.Domain.Handlers;
 using MGIMemora.Domain.Repositories;
 
-namespace MGIMemora.Application.Handlers
+namespace MGIMemora.Application.Handlers.PrivatePension
 {
 
     public class PrivatePensionCommandHandler : ICommandHandler<CreatePrivatePensionCommand>,
@@ -45,7 +44,7 @@ namespace MGIMemora.Application.Handlers
 
                 if (command is null) return new GenericResultCommand(false, "Dados Invalidos!");
 
-                var privatePension = new PrivatePension(command.Name, command.BenefitName, command.Modality, command.ValueMillions, command.SponsorshipCompany);
+                var privatePension = new MGIMemora.Domain.Entities.PrivatePension(command.Name, command.BenefitName, command.Modality, command.ValueMillions, command.SponsorshipCompany);
 
                 await _privatePensionRepository.CreateAsync(privatePension);
 
@@ -110,7 +109,7 @@ namespace MGIMemora.Application.Handlers
 
                 return new GenericResultCommand(true, "Deletado com Sucesso!");
             }
-            
+
             return new GenericResultCommand(false, "Dados Invalidos!", result.Errors);
         }
     }

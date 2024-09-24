@@ -4,9 +4,9 @@ using MGIMemora.Domain.Handlers;
 using MGIMemora.Domain.Queries;
 using MGIMemora.Domain.Repositories;
 
-namespace MGIMemora.Application.Handlers;
+namespace MGIMemora.Application.Handlers.PrivatePension;
 
-public class PrivatePensionQueryHandler : IQueryHandler<GetByIdQuery>, IQueryHandler<GetAllQuery>
+public class PrivatePensionQueryHandler : IQueryHandler<GetByIdPrivatePensionQuery>, IQueryHandler<GetAllPrivatePensionQuery>
 {
     private readonly IPrivatePensionRepository _privatePensionRepository;
 
@@ -14,13 +14,13 @@ public class PrivatePensionQueryHandler : IQueryHandler<GetByIdQuery>, IQueryHan
     {
         _privatePensionRepository = privatePensionRepository;
     }
-    public async Task<IQueryResult> Handle(GetByIdQuery query)
+    public async Task<IQueryResult> Handle(GetByIdPrivatePensionQuery query)
     {
         var result = await _privatePensionRepository.GetByIdAsync(query.Id);
         return new GenericResultQuery(true, result);
     }
 
-    public async Task<IQueryResult> Handle(GetAllQuery query)
+    public async Task<IQueryResult> Handle(GetAllPrivatePensionQuery query)
     {
         var result = await _privatePensionRepository.GetAllAsync();
         return new GenericResultQuery(true, result);

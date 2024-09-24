@@ -10,6 +10,7 @@ namespace MGIMemora.Infrastructure.Context
             
         }
         public DbSet<PrivatePension> PrivatePensions { get; set; }
+        public DbSet<User> Users { get; set; }
 
     }
 }

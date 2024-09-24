@@ -9,6 +9,7 @@ namespace MGIMemora.Domain.Entities
             Modality = modality;
             ValueMillions = valueMillions;
             SponsorshipCompany = sponsorshipCompany;
+            DateCreate = DateTime.Now;
         }
 
 
@@ -28,6 +29,7 @@ namespace MGIMemora.Domain.Entities
             this.BenefitName = benefitName;
             this.ValueMillions = valueMillions;
             this.SponsorshipCompany = sponsorshipCompany;
+            this.DateUpdate = DateTime.Now;
         }
 
     }
