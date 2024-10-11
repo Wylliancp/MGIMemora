@@ -46,4 +46,9 @@ public class UserRepository : IUserRepository
         _context.Entry(user).State = EntityState.Modified;
         await _context.SaveChangesAsync();
     }
+
+    public async Task<User> LoginAsync(string Email, string Password)
+    {
+        return await _context.Users.Where(x => x.Email == Email && x.Password == Password).FirstOrDefaultAsync() ?? default!;
+    }
 }
