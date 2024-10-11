@@ -66,4 +66,12 @@ public class UserController : ControllerBase
     {
         return await handler.Handle(command);
     }
+
+    [Route("Login")]
+    [HttpPost]
+
+    public async Task<ICommandResult> Authentication([FromQuery] LoginUserCommand command, [FromServices] UserCommandHandler handler)
+    {
+        return await handler.Handle(command);
+    }
 }
