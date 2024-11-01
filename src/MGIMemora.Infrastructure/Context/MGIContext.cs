@@ -3,12 +3,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MGIMemora.Infrastructure.Context
 {
-    public class MGIContext : DbContext
+    public class MGIContext(DbContextOptions<MGIContext> contextOptions) : DbContext(contextOptions)
     {
-        public MGIContext(DbContextOptions<MGIContext> contextOptions) : base(contextOptions)
-        {
-            
-        }
         public DbSet<PrivatePension> PrivatePensions { get; set; }
         public DbSet<User> Users { get; set; }
 

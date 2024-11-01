@@ -9,15 +9,10 @@ namespace MGIMemora.Api.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class UserController : ControllerBase
+public class UserController(ILogger<UserController> logger) : ControllerBase
 {
 
-    private readonly ILogger<UserController> _logger;
-
-    public UserController(ILogger<UserController> logger)
-    {
-        _logger = logger;
-    }
+    private readonly ILogger<UserController> _logger = logger;
 
     [Route("GetTById")]
     [HttpGet]

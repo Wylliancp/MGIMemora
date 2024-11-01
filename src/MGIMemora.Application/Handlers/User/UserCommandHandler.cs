@@ -9,49 +9,32 @@ using MGIMemora.Domain.Repositories;
 namespace MGIMemora.Application.Handlers.User
 {
 
-    public class UserCommandHandler : ICommandHandler<CreateUserCommand>,
-                                                ICommandHandler<UpdateEmailUserCommand>,
-                                                ICommandHandler<UpdateRolesUserCommand>,
-                                                ICommandHandler<DeleteUserCommand>,
-                                                ICommandHandler<LoginUserCommand>
+    public class UserCommandHandler(
+        IUserRepository userRepository,
+        IValidator<CreateUserCommand> validatorCreate,
+        IValidator<UpdateEmailUserCommand> validatorUpdateEmail,
+        IValidator<UpdateRolesUserCommand> validatorUpdateRoles,
+        IValidator<DeleteUserCommand> validatorDelete,
+        IValidator<LoginUserCommand> validatorLogin)
+        : ICommandHandler<CreateUserCommand>,
+            ICommandHandler<UpdateEmailUserCommand>,
+            ICommandHandler<UpdateRolesUserCommand>,
+            ICommandHandler<DeleteUserCommand>,
+            ICommandHandler<LoginUserCommand>
     {
-
-        private readonly IUserRepository _userRepository;
-        private IValidator<CreateUserCommand> _validatorCreate;
-        private IValidator<UpdateEmailUserCommand> _validatorUpdateEmail;
-        private IValidator<UpdateRolesUserCommand> _validatorUpdateRoles;
-        private IValidator<DeleteUserCommand> _validatorDelete;
-        private IValidator<LoginUserCommand> _validatorLogin;
-
-        public UserCommandHandler(IUserRepository userRepository,
-            IValidator<CreateUserCommand> validatorCreate,
-            IValidator<UpdateEmailUserCommand> validatorUpdateEmail,
-            IValidator<UpdateRolesUserCommand> validatorUpdateRoles,
-            IValidator<DeleteUserCommand> validatorDelete,
-            IValidator<LoginUserCommand> validatorLogin
-            )
-        {
-            _userRepository = userRepository;
-            _validatorCreate = validatorCreate;
-            _validatorUpdateEmail = validatorUpdateEmail;
-            _validatorUpdateRoles = validatorUpdateRoles;
-            _validatorDelete = validatorDelete;
-            _validatorLogin = validatorLogin;
-        }
-
         public async Task<ICommandResult> Handle(CreateUserCommand command)
         {
 
-            var result = await _validatorCreate.ValidateAsync(command);
+            var result = await validatorCreate.ValidateAsync(command);
 
             if (result.IsValid)
             {
 
                 if (command is null) return new GenericResultCommand(false, "Dados Invalidos!");
 
-                var user = new MGIMemora.Domain.Entities.User(command.Email, command.Password, command.Roles);
+                var user = new MGIMemora.Domain.Entities.User(command.Email, command.Password.ComputeHash(), command.Roles);
 
-                await _userRepository.CreateAsync(user);
+                await userRepository.CreateAsync(user);
 
                 return new GenericResultCommand(true, "Criado com Sucesso!");
 
@@ -63,16 +46,16 @@ namespace MGIMemora.Application.Handlers.User
         public async Task<ICommandResult> Handle(UpdateEmailUserCommand command)
         {
 
-            var result = await _validatorUpdateEmail.ValidateAsync(command);
+            var result = await validatorUpdateEmail.ValidateAsync(command);
 
             if (result.IsValid)
             {
 
-                var user = await _userRepository.GetByIdAsync(command.Id);
+                var user = await userRepository.GetByIdAsync(command.Id);
 
                 user.UpdateEmail(command.Email);
 
-                await _userRepository.UpdateAsync(user);
+                await userRepository.UpdateAsync(user);
 
                 return new GenericResultCommand(true, "Email atualizado com Sucesso!");
 
@@ -85,16 +68,16 @@ namespace MGIMemora.Application.Handlers.User
         public async Task<ICommandResult> Handle(UpdateRolesUserCommand command)
         {
 
-            var result = await _validatorUpdateRoles.ValidateAsync(command);
+            var result = await validatorUpdateRoles.ValidateAsync(command);
 
             if (result.IsValid)
             {
 
-                var user = await _userRepository.GetByIdAsync(command.Id);
+                var user = await userRepository.GetByIdAsync(command.Id);
 
                 user.UpdateRoles(command.Roles);
 
-                await _userRepository.UpdateAsync(user);
+                await userRepository.UpdateAsync(user);
 
                 return new GenericResultCommand(true, "Atualizado com Sucesso!");
             }
@@ -105,12 +88,12 @@ namespace MGIMemora.Application.Handlers.User
         public async Task<ICommandResult> Handle(DeleteUserCommand command)
         {
 
-            var result = await _validatorDelete.ValidateAsync(command);
+            var result = await validatorDelete.ValidateAsync(command);
 
             if (result.IsValid)
             {
 
-                await _userRepository.DeleteAsync(command.Id);
+                await userRepository.DeleteAsync(command.Id);
 
                 return new GenericResultCommand(true, "Deletado com Sucesso!");
             }
@@ -120,14 +103,14 @@ namespace MGIMemora.Application.Handlers.User
 
         public async Task<ICommandResult> Handle(LoginUserCommand command)
         {
-            var result = await _validatorLogin.ValidateAsync(command);
+            var result = await validatorLogin.ValidateAsync(command);
 
             if (result.IsValid)
             {
 
-                var user = await _userRepository.LoginAsync(command.Email, command.Password);
+                var user = await userRepository.LoginAsync(command.Email, command.Password.ComputeHash());
 
-                if(user == null)
+                if(user is null)
                     return new GenericResultCommand(true, "Usúario ou senha inválido");
             
                 var token = TokenService.GenerateToken(user);

@@ -9,6 +9,6 @@ namespace MGIMemora.Domain.Repositories
         Task CreateAsync(User user);
         Task UpdateAsync(User user);
         Task DeleteAsync(int id);
-        Task<User> LoginAsync(String Email, String Password);
+        Task<User> LoginAsync(String email, String password);
     }
 }

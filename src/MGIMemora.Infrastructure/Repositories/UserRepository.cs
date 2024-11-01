@@ -5,50 +5,44 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MGIMemora.Infrastructure.Repositories;
 
-public class UserRepository : IUserRepository
-{   
-    private readonly MGIContext _context;
-
-    public UserRepository(MGIContext context)
-    {
-        _context = context;
-    }
+public class UserRepository(MGIContext context) : IUserRepository
+{
     public async Task CreateAsync(User user)
     {
-        await _context.Users.AddAsync(user);
-        await _context.SaveChangesAsync();
+        await context.Users.AddAsync(user);
+        await context.SaveChangesAsync();
     }
 
     public async Task DeleteAsync(int id)
     {
-        var user = await _context.Users.Where(x => x.Id == id)
+        var user = await context.Users.Where(x => x.Id == id)
                                                            .AsNoTracking()
                                                            .FirstOrDefaultAsync();
 
         if(user == default) return;
 
-        _context.Users.Remove(user);
-        await _context.SaveChangesAsync();
+        context.Users.Remove(user);
+        await context.SaveChangesAsync();
     }
 
     public async Task<IEnumerable<User>> GetAllAsync()
     {
-        return await _context.Users.ToListAsync();
+        return await context.Users.ToListAsync();
     }
 
     public async Task<User> GetByIdAsync(int id)
     {
-        return await _context.Users.Where(x => x.Id == id).FirstOrDefaultAsync() ?? default!;
+        return await context.Users.Where(x => x.Id == id).FirstOrDefaultAsync() ?? default!;
     }
 
     public async Task UpdateAsync(User user)
     {
-        _context.Entry(user).State = EntityState.Modified;
-        await _context.SaveChangesAsync();
+        context.Entry(user).State = EntityState.Modified;
+        await context.SaveChangesAsync();
     }
 
-    public async Task<User> LoginAsync(string Email, string Password)
+    public async Task<User> LoginAsync(string email, string password)
     {
-        return await _context.Users.Where(x => x.Email == Email && x.Password == Password).FirstOrDefaultAsync() ?? default!;
+        return await context.Users.Where(x => x.Email == email && x.Password == password).FirstOrDefaultAsync() ?? default!;
     }
 }

@@ -9,15 +9,10 @@ namespace MGIMemora.Api.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class PrivatePensionController : ControllerBase
+public class PrivatePensionController(ILogger<PrivatePensionController> logger) : ControllerBase
 {
 
-    private readonly ILogger<PrivatePensionController> _logger;
-
-    public PrivatePensionController(ILogger<PrivatePensionController> logger)
-    {
-        _logger = logger;
-    }
+    private readonly ILogger<PrivatePensionController> _logger = logger;
 
     [Route("GetTById")]
     [HttpGet]

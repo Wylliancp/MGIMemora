@@ -8,36 +8,21 @@ using MGIMemora.Domain.Repositories;
 namespace MGIMemora.Application.Handlers.PrivatePension
 {
 
-    public class PrivatePensionCommandHandler : ICommandHandler<CreatePrivatePensionCommand>,
-                                                ICommandHandler<UpdateModalityPrivatePensionCommand>,
-                                                ICommandHandler<UpdatePrivatePensionCommand>,
-                                                ICommandHandler<DeletePrivatePensionCommand>
+    public class PrivatePensionCommandHandler(
+        IPrivatePensionRepository privatePensionRepository,
+        IValidator<CreatePrivatePensionCommand> validatorCreate,
+        IValidator<UpdatePrivatePensionCommand> validatorUpdate,
+        IValidator<UpdateModalityPrivatePensionCommand> validatorUpdateModality,
+        IValidator<DeletePrivatePensionCommand> validatorDelete)
+        : ICommandHandler<CreatePrivatePensionCommand>,
+            ICommandHandler<UpdateModalityPrivatePensionCommand>,
+            ICommandHandler<UpdatePrivatePensionCommand>,
+            ICommandHandler<DeletePrivatePensionCommand>
     {
-
-        private readonly IPrivatePensionRepository _privatePensionRepository;
-        private IValidator<CreatePrivatePensionCommand> _validatorCreate;
-        private IValidator<UpdatePrivatePensionCommand> _validatorUpdate;
-        private IValidator<UpdateModalityPrivatePensionCommand> _validatorUpdateModality;
-        private IValidator<DeletePrivatePensionCommand> _validatorDelete;
-
-        public PrivatePensionCommandHandler(IPrivatePensionRepository privatePensionRepository,
-            IValidator<CreatePrivatePensionCommand> validatorCreate,
-            IValidator<UpdatePrivatePensionCommand> validatorUpdate,
-            IValidator<UpdateModalityPrivatePensionCommand> validatorUpdateModality,
-            IValidator<DeletePrivatePensionCommand> validatorDelete
-            )
-        {
-            _privatePensionRepository = privatePensionRepository;
-            _validatorCreate = validatorCreate;
-            _validatorUpdate = validatorUpdate;
-            _validatorUpdateModality = validatorUpdateModality;
-            _validatorDelete = validatorDelete;
-        }
-
         public async Task<ICommandResult> Handle(CreatePrivatePensionCommand command)
         {
 
-            var result = await _validatorCreate.ValidateAsync(command);
+            var result = await validatorCreate.ValidateAsync(command);
 
             if (result.IsValid)
             {
@@ -46,7 +31,7 @@ namespace MGIMemora.Application.Handlers.PrivatePension
 
                 var privatePension = new MGIMemora.Domain.Entities.PrivatePension(command.Name, command.BenefitName, command.Modality, command.ValueMillions, command.SponsorshipCompany);
 
-                await _privatePensionRepository.CreateAsync(privatePension);
+                await privatePensionRepository.CreateAsync(privatePension);
 
                 return new GenericResultCommand(true, "Criado com Sucesso!");
 
@@ -58,16 +43,16 @@ namespace MGIMemora.Application.Handlers.PrivatePension
         public async Task<ICommandResult> Handle(UpdateModalityPrivatePensionCommand command)
         {
 
-            var result = await _validatorUpdateModality.ValidateAsync(command);
+            var result = await validatorUpdateModality.ValidateAsync(command);
 
             if (result.IsValid)
             {
 
-                var privatePension = await _privatePensionRepository.GetByIdAsync(command.Id);
+                var privatePension = await privatePensionRepository.GetByIdAsync(command.Id);
 
                 privatePension.UpdateModality(command.Modality);
 
-                await _privatePensionRepository.UpdateAsync(privatePension);
+                await privatePensionRepository.UpdateAsync(privatePension);
 
                 return new GenericResultCommand(true, "Modalidade atualizado com Sucesso!");
 
@@ -80,16 +65,16 @@ namespace MGIMemora.Application.Handlers.PrivatePension
         public async Task<ICommandResult> Handle(UpdatePrivatePensionCommand command)
         {
 
-            var result = await _validatorUpdate.ValidateAsync(command);
+            var result = await validatorUpdate.ValidateAsync(command);
 
             if (result.IsValid)
             {
 
-                var privatePension = await _privatePensionRepository.GetByIdAsync(command.Id);
+                var privatePension = await privatePensionRepository.GetByIdAsync(command.Id);
 
                 privatePension.Update(command.Name, command.BenefitName, command.ValueMillions, command.SponsorshipCompany);
 
-                await _privatePensionRepository.UpdateAsync(privatePension);
+                await privatePensionRepository.UpdateAsync(privatePension);
 
                 return new GenericResultCommand(true, "Atualizado com Sucesso!");
             }
@@ -100,12 +85,12 @@ namespace MGIMemora.Application.Handlers.PrivatePension
         public async Task<ICommandResult> Handle(DeletePrivatePensionCommand command)
         {
 
-            var result = await _validatorDelete.ValidateAsync(command);
+            var result = await validatorDelete.ValidateAsync(command);
 
             if (result.IsValid)
             {
 
-                await _privatePensionRepository.DeleteAsync(command.Id);
+                await privatePensionRepository.DeleteAsync(command.Id);
 
                 return new GenericResultCommand(true, "Deletado com Sucesso!");
             }
